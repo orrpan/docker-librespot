@@ -12,6 +12,7 @@ RUN cd librespot && /root/.cargo/bin/cargo build --release
 
 FROM debian:stable-slim as release
 RUN useradd librespot
+RUN usermod -a -G audio librespot
 COPY --from=builder  /librespot/target/release/librespot /usr/bin/librespot
 RUN apt update && apt install -y libasound2-dev && rm -r /var/cache/apt
 
