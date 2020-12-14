@@ -6,7 +6,7 @@ RUN curl https://sh.rustup.rs -sSf > rustup.sh
 RUN sh rustup.sh -y
 
 RUN git clone https://github.com/librespot-org/librespot.git
-RUN cd librespot && /root/.cargo/bin/cargo build --release
+RUN cd librespot && /root/.cargo/bin/cargo build --release --no-default-features --features "alsa-backend,pulseaudio-backend"
 
 
 
