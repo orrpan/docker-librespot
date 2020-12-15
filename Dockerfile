@@ -1,22 +1,35 @@
-FROM debian as builder
+FROM alpine:3.12
+MAINTAINER Oskar Joelsson
+
 ARG librespot_version=064359c26e0e0d29a820a542bb2e48bc237b3b49
 
-RUN apt update
-RUN apt install -y git build-essential libasound2-dev curl pkg-config git libpulse-dev
-RUN curl https://sh.rustup.rs -sSf > rustup.sh
-RUN sh rustup.sh -y
+WORKDIR /build
 
-RUN git clone https://github.com/librespot-org/librespot.git
+RUN apk --upgrade add \
+    git \
+    alsa-lib-dev \
+    pulseaudio-dev \
+    cargo 
+
+RUN git clone https://github.com/librespot-org/librespot.git librespot
 RUN git -C librespot checkout $librespot_version
-RUN cd librespot && /root/.cargo/bin/cargo build --release --features "alsa-backend,pulseaudio-backend"
+RUN cd librespot \
+ && cargo build --jobs $(grep -c ^processor /proc/cpuinfo) --release --features "pulseaudio-backend" \
+ && mv target/release/librespot /usr/bin/librespot
 
+RUN adduser -S librespot -G audio
 
+RUN apk --purge del \
+    git \
+    alsa-lib-dev \
+    pulseaudio-dev \
+    cargo
 
-FROM debian:stable-slim as release
-RUN useradd librespot
-RUN usermod -a -G audio librespot
-COPY --from=builder  /librespot/target/release/librespot /usr/bin/librespot
-RUN apt update && apt install -y libasound2 libpulse0 && rm -r /var/cache/apt
+RUN rm -rf /build
+
+RUN apk --upgrade add \
+    libpulse \
+    alsa-lib
 
 USER librespot
 ENTRYPOINT ["/usr/bin/librespot"]
