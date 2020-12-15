@@ -11,7 +11,8 @@ RUN apk --no-cache --virtual add \
 
 RUN git clone https://github.com/librespot-org/librespot.git librespot
 RUN git -C librespot checkout $librespot_version
-RUN cargo build --jobs $(grep -c ^processor /proc/cpuinfo) --release --features "pulseaudio-backend"
+RUN cd librespot \
+ && cargo build --jobs $(grep -c ^processor /proc/cpuinfo) --release --features "pulseaudio-backend"
 
 FROM alpine:3.12
 
