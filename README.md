@@ -5,5 +5,5 @@ LibreSpot on a container, no more no less.
 Basic run with:
 
 ```bash
-docker run --net host --device /dev/snd pedrxd/librespot
+docker run --net host --device /dev/snd orrpan/docker-librespot
 ```
